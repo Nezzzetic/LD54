@@ -9,6 +9,7 @@ public class GameController : MonoBehaviour
     public Storage storage;
     public GameObject ContentWindow;
     Content CurrentContent;
+    Content CurrentWatchContent;
     List<Content> contentList;
     List<Content> watchedContentList;
     public BitView BitViewPrefab;
@@ -22,6 +23,7 @@ public class GameController : MonoBehaviour
     public float DivisionsMulty;
     public Text watchTimerText;
     public Text lifeTimerText;
+    public Text desireText;
     public int Size;
     public int Setup;
     public int SelectedType;
@@ -29,6 +31,8 @@ public class GameController : MonoBehaviour
     public Vector2Int Type1Size;
     public Vector2Int Type2Size;
     public bool LoadActive;
+    public int DesireType;
+    public int[] DesireTypesLimits;
     void Start()
     {
         contentList=new List<Content>();
@@ -40,20 +44,19 @@ public class GameController : MonoBehaviour
         LoadActive = true;
         for (int i = 0; i < Size; i++)
         {
-            storage.SpaceView[i].OnBitClick += deleteContent;
+            storage.SpaceView[i].OnBitClick += consumeContent;
         }
         DownloadTimer = DownloadTime;
         for (int i = 0; i < Setup; i++)
         {
             if (CurrentContent == null || CurrentContent.Placed) {
-                var rnd = Random.Range(0, 3);
-                SelectedType = rnd;
+                SelectedType = Random.Range(0, 3);
                 CreateContent(SelectedType); 
             }
             SelectedType = 0;
             placeContent();
         }
-
+        RollDesire();
         viewStorage();
     }
 
@@ -107,6 +110,8 @@ public class GameController : MonoBehaviour
             {
                 WatchTimer = 0;
                 ContentWindow.SetActive(false);
+                deleteContent(CurrentWatchContent);
+                RollDesire();
             }
         }
     }
@@ -143,11 +148,28 @@ public class GameController : MonoBehaviour
         viewStorage();
     }
 
+    void consumeContent(BitView bit)
+    {
+        if (WatchTimer > 0) return;
+        var cont = bit.content;
+        if (DesireType != cont.Type) return;
+        watchedContentList.Add(cont);
+        contentList.Remove(cont);
+        cont.Watched = true;
+        WatchTimer = WatchTime * cont.Divisions * DivisionsMulty * cont.Coords.Count;
+        LifeTimer += cont.Coords.Count * LifeLenghtMulty;
+        if (LifeTimer > LifeTime) LifeTimer = LifeTime;
+        Debug.Log(cont.Divisions);
+        ContentWindow.SetActive(true);
+        CurrentWatchContent = cont;
+        viewStorage();
+    }
+
     public void deleteContent(Content content)
     {
-        
         storage.RemoveContent(content);
-        watchedContentList.Remove(content);
+        if (watchedContentList.Contains(content)) watchedContentList.Remove(content);
+        if (contentList.Contains(content)) contentList.Remove(content);
         viewStorage();
     }
 
@@ -188,5 +210,20 @@ public class GameController : MonoBehaviour
             SelectedType = type;
         }
         
+    }
+
+    private void RollDesire()
+    {
+        var rnd = Random.Range(0, 100);
+        DesireType = -1;
+        for (int i = 0; i < DesireTypesLimits.Length; i++)
+        {
+            if (rnd< DesireTypesLimits[i])
+            {
+                DesireType = i; break;
+            }
+        }
+        if (DesireType == -1) DesireType = 2;
+        desireText.text = DesireType.ToString();
     }
 }
