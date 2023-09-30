@@ -21,7 +21,7 @@ public class ContentFactory
         a.ID = Instance.Count++;
         a.Coords = new List<int>();
         a.PartsRemains = size;
-        a.Divisions = 0;
+        a.Divisions = 1;
         a.Watched= false;
         return a;
     }

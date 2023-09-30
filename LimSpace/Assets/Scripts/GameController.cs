@@ -2,14 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     public Storage storage;
+    public GameObject ContentWindow;
     Content CurrentContent;
     List<Content> contentList;
     List<Content> watchedContentList;
     public BitView BitViewPrefab;
+    public float DownloadTime;
+    public float DownloadTimer;
+    public float WatchTimer;
+    public float WatchTime;
+    public float DivisionsMulty;
+    public Text watchTimerText;
     void Start()
     {
         contentList=new List<Content>();
@@ -17,6 +25,11 @@ public class GameController : MonoBehaviour
         storage.SpaceTransform = transform;
         storage.BitView = BitViewPrefab;
         storage.InitSpace(15);
+        for (int i = 0; i < 15; i++)
+        {
+            storage.SpaceView[i].OnBitClick += deleteContent;
+        }
+        DownloadTimer = DownloadTime;
         viewStorage();
     }
 
@@ -25,12 +38,37 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (CurrentContent==null || CurrentContent.Placed) { CreateContent();}
-            placeContent();
+            if (WatchTimer<=0) { consumeContent(); }
         }
-        if (Input.GetKeyDown(KeyCode.Delete))
+        UpdateDownload();
+        UpdateWatching();
+    }
+
+    private void UpdateDownload()
+    {
+        if (DownloadTimer > 0)
         {
-            consumeContent();
+            DownloadTimer -= Time.deltaTime;
+            if (DownloadTimer <= 0)
+            {
+                if (CurrentContent == null || CurrentContent.Placed) { CreateContent(); }
+                placeContent();
+                DownloadTimer = DownloadTime;
+            }
+        }
+    }
+
+    private void UpdateWatching()
+    {
+        if (WatchTimer > 0)
+        {
+            WatchTimer -= Time.deltaTime;
+            watchTimerText.text = WatchTimer.ToString();
+            if (WatchTimer <= 0)
+            {
+                WatchTimer = 0;
+                ContentWindow.SetActive(false);
+            }
         }
     }
 
@@ -55,6 +93,9 @@ public class GameController : MonoBehaviour
         watchedContentList.Add(cont);
         contentList.RemoveAt(rnd);
         cont.Watched = true;
+        WatchTimer = WatchTime * cont.Divisions* DivisionsMulty*cont.Coords.Count;
+        Debug.Log(cont.Divisions);
+        ContentWindow.SetActive(true);
         viewStorage();
     }
 
@@ -63,6 +104,16 @@ public class GameController : MonoBehaviour
         
         storage.RemoveContent(content);
         watchedContentList.Remove(content);
+        viewStorage();
+    }
+
+    public void deleteContent(BitView bit)
+    {
+        if (WatchTimer > 0) return;
+        var content = bit.content;
+        storage.RemoveContent(content);
+        if (watchedContentList.Contains(content)) watchedContentList.Remove(content);
+        if (contentList.Contains(content)) contentList.Remove(content);
         viewStorage();
     }
 

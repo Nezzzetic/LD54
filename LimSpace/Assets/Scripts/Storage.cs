@@ -24,12 +24,14 @@ public class Storage : MonoBehaviour
 
     private int _findNextFreePosition()
     {
+        var t = 0;
         var a = CurrentHeadPosition + 1;
-        while (a!= CurrentHeadPosition)
+        while (a!= CurrentHeadPosition && t<1000)
         {
             if (a == SpaceView.Length) a = 0;
             if (SpaceView[a].ID == 0) return a;
             a++;
+            t++;
         }
         return -1;
     }
@@ -39,6 +41,9 @@ public class Storage : MonoBehaviour
         SpaceView[CurrentHeadPosition].ID = cont.ID;
         SpaceView[CurrentHeadPosition].content = cont;
         cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition > 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID);
+        if (CurrentHeadPosition== SpaceView.Length-1 || SpaceView[CurrentHeadPosition + 1].ID != 0) SpaceView[CurrentHeadPosition].Right.SetActive(true);
+        if (CurrentHeadPosition == 0 || SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition].Left.SetActive(true);
+        if (CurrentHeadPosition != 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition-1].Right.SetActive(true);
     }
 
 
@@ -66,6 +71,8 @@ public class Storage : MonoBehaviour
             {
                 SpaceView[i].ID = 0;
                 SpaceView[i].content = null;
+                SpaceView[i].Left.SetActive(false);
+                SpaceView[i].Right.SetActive(false);
             }
         }
     }
