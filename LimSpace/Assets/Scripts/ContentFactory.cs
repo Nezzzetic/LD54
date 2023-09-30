@@ -6,11 +6,16 @@ public class ContentFactory
 {
     private static ContentFactory instance;
     public static ContentFactory Instance { get {
-            if (instance != null) instance = new ContentFactory();
+            if (instance == null)
+            {
+                instance = new ContentFactory();
+                instance.Count = 1;
+            }
+
             return instance; 
         } }
 
-    public int Count = 1;
+    public int Count;
     public static Content CreateContent(int size) { 
         var a = new Content();
         a.ID = Instance.Count++;

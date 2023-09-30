@@ -19,19 +19,18 @@ public class Storage
 
     private int _findNextFreePosition()
     {
-        var a = CurrentHeadPosition+1;
+        var a = CurrentHeadPosition + 1;
         while (a!= CurrentHeadPosition)
         {
+            if (a == Space.Length) a = 0;
             if (Space[a] == 0) return a;
             a++;
-            if (a == Space.Length) a = 0;
         }
         return -1;
     }
 
     private void _addContentPiece(Content cont)
     {
-        if (CurrentHeadPosition!=0)
         Space[CurrentHeadPosition] = cont.ID;
         cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition > 0 && Space[CurrentHeadPosition - 1] != cont.ID);
     }
@@ -39,7 +38,7 @@ public class Storage
 
     public int AddContentPiece(Content cont)
     {
-        if (CurrentHeadPosition != 0) {
+        if (Space[CurrentHeadPosition] == 0) {
             _addContentPiece(cont); 
             return 0;
         }
