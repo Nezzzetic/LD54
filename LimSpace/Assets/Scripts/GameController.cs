@@ -16,8 +16,12 @@ public class GameController : MonoBehaviour
     public float DownloadTimer;
     public float WatchTimer;
     public float WatchTime;
+    public float LifeTimer;
+    public float LifeTime;
+    public float LifeLenghtMulty;
     public float DivisionsMulty;
     public Text watchTimerText;
+    public Text lifeTimerText;
     void Start()
     {
         contentList=new List<Content>();
@@ -25,6 +29,7 @@ public class GameController : MonoBehaviour
         storage.SpaceTransform = transform;
         storage.BitView = BitViewPrefab;
         storage.InitSpace(15);
+        LifeTimer = LifeTime/2;
         for (int i = 0; i < 15; i++)
         {
             storage.SpaceView[i].OnBitClick += deleteContent;
@@ -42,6 +47,7 @@ public class GameController : MonoBehaviour
         }
         UpdateDownload();
         UpdateWatching();
+        UpdateLife();
     }
 
     private void UpdateDownload()
@@ -54,6 +60,19 @@ public class GameController : MonoBehaviour
                 if (CurrentContent == null || CurrentContent.Placed) { CreateContent(); }
                 placeContent();
                 DownloadTimer = DownloadTime;
+            }
+        }
+    }
+
+    private void UpdateLife()
+    {
+        if (LifeTimer > 0)
+        {
+            LifeTimer -= Time.deltaTime;
+            lifeTimerText.text = LifeTimer.ToString();
+            if (LifeTimer <= 0)
+            {
+                LifeTimer= - 1;
             }
         }
     }
@@ -94,6 +113,8 @@ public class GameController : MonoBehaviour
         contentList.RemoveAt(rnd);
         cont.Watched = true;
         WatchTimer = WatchTime * cont.Divisions* DivisionsMulty*cont.Coords.Count;
+        LifeTimer += cont.Coords.Count * LifeLenghtMulty;
+        if (LifeTimer > LifeTime) LifeTimer = LifeTime;
         Debug.Log(cont.Divisions);
         ContentWindow.SetActive(true);
         viewStorage();

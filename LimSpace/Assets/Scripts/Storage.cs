@@ -40,7 +40,7 @@ public class Storage : MonoBehaviour
     {
         SpaceView[CurrentHeadPosition].ID = cont.ID;
         SpaceView[CurrentHeadPosition].content = cont;
-        cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition > 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID);
+        cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition == 0 || SpaceView[CurrentHeadPosition - 1].ID != cont.ID);
         if (CurrentHeadPosition== SpaceView.Length-1 || SpaceView[CurrentHeadPosition + 1].ID != 0) SpaceView[CurrentHeadPosition].Right.SetActive(true);
         if (CurrentHeadPosition == 0 || SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition].Left.SetActive(true);
         if (CurrentHeadPosition != 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition-1].Right.SetActive(true);
