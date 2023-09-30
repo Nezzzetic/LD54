@@ -17,7 +17,7 @@ public class Storage
         CurrentHeadPosition = 0;
     }
 
-    private int _placeHeadToNextFreePosition()
+    private int _findNextFreePosition()
     {
         var a = CurrentHeadPosition+1;
         while (a!= CurrentHeadPosition)
@@ -29,10 +29,28 @@ public class Storage
         return -1;
     }
 
-    public void AddContentPiece(Content cont)
+    private void _addContentPiece(Content cont)
     {
+        if (CurrentHeadPosition!=0)
         Space[CurrentHeadPosition] = cont.ID;
-        if (CurrentHeadPosition>0 && Space[CurrentHeadPosition-1]!=cont.ID) cont.Divisions++;
+        cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition > 0 && Space[CurrentHeadPosition - 1] != cont.ID);
+    }
+
+
+    public int AddContentPiece(Content cont)
+    {
+        if (CurrentHeadPosition != 0) {
+            _addContentPiece(cont); 
+            return 0;
+        }
+        var a = _findNextFreePosition();
+        if (a>=0)
+        {
+            CurrentHeadPosition = a;
+            _addContentPiece(cont);
+            return 0;
+        }
+        return -1;
     }
 
     public void RemoveContentPiece(Content cont)
