@@ -8,15 +8,25 @@ public class Storage : MonoBehaviour
     public int CurrentHeadPosition;
     public Transform SpaceTransform;
     public BitView BitView;
+    public int Xsize;
 
     public void InitSpace(int Size)
     {
         SpaceView = new BitView[Size];
+        var x = 0;
+        var y = 0;
         for (int i = 0; i < Size; i++)
         {
+            
             SpaceView[i] = Instantiate(BitView, SpaceTransform);
-            SpaceView[i].transform.position += Vector3.right * 1.1f * i + Vector3.left * 8;
+            SpaceView[i].transform.position += Vector3.right * 1.1f * x + Vector3.left * 8+ Vector3.up * 1.1f * y + Vector3.down * 3;
             SpaceView[i].ID = 0;
+            x++;
+            if (x == Xsize)
+            {
+                x = 0;
+                y++;
+            }
         }
         CurrentHeadPosition = 0;
 

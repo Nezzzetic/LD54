@@ -30,8 +30,13 @@ public class BitView : MonoBehaviour
         if (ID == 0) { Renderer.color = Color.white; return; }
         if (content.Placed) {
             if (content.Watched) { Renderer.color = Color.cyan; return; }
-            else
-            Renderer.color = Color.green; return; }
+            else {
+                if (content.Type == 0) { Renderer.color = Color.green; }
+                if (content.Type == 1) { Renderer.color = Color.blue; }
+                if (content.Type == 2) { Renderer.color = Color.red; }
+            }
+            return; 
+        }
         Renderer.color = Color.gray;
 
     }

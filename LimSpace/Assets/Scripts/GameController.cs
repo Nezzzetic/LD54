@@ -22,19 +22,38 @@ public class GameController : MonoBehaviour
     public float DivisionsMulty;
     public Text watchTimerText;
     public Text lifeTimerText;
+    public int Size;
+    public int Setup;
+    public int SelectedType;
+    public Vector2Int Type0Size;
+    public Vector2Int Type1Size;
+    public Vector2Int Type2Size;
+    public bool LoadActive;
     void Start()
     {
         contentList=new List<Content>();
         watchedContentList=new List<Content>();
         storage.SpaceTransform = transform;
         storage.BitView = BitViewPrefab;
-        storage.InitSpace(15);
+        storage.InitSpace(Size);
         LifeTimer = LifeTime/2;
-        for (int i = 0; i < 15; i++)
+        LoadActive = true;
+        for (int i = 0; i < Size; i++)
         {
             storage.SpaceView[i].OnBitClick += deleteContent;
         }
         DownloadTimer = DownloadTime;
+        for (int i = 0; i < Setup; i++)
+        {
+            if (CurrentContent == null || CurrentContent.Placed) {
+                var rnd = Random.Range(0, 3);
+                SelectedType = rnd;
+                CreateContent(SelectedType); 
+            }
+            SelectedType = 0;
+            placeContent();
+        }
+
         viewStorage();
     }
 
@@ -52,12 +71,13 @@ public class GameController : MonoBehaviour
 
     private void UpdateDownload()
     {
+        if (!LoadActive) return;
         if (DownloadTimer > 0)
         {
             DownloadTimer -= Time.deltaTime;
             if (DownloadTimer <= 0)
             {
-                if (CurrentContent == null || CurrentContent.Placed) { CreateContent(); }
+                if (CurrentContent == null || CurrentContent.Placed) { CreateContent(SelectedType); }
                 placeContent();
                 DownloadTimer = DownloadTime;
             }
@@ -91,10 +111,13 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void CreateContent()
+    void CreateContent(int type)
     {
-        int rnd = Random.Range(2, 5);
-        CurrentContent = ContentFactory.CreateContent(rnd);
+        int rnd = 0;
+        if (type==0) rnd = Random.Range(Type0Size.x, Type0Size.y);
+        if (type==1) rnd = Random.Range(Type1Size.x, Type1Size.y);
+        if (type==2) rnd = Random.Range(Type2Size.x, Type2Size.y);
+        CurrentContent = ContentFactory.CreateContent(rnd, type);
         CurrentContent.OnPlaced += ContentPlaced;
     }
 
@@ -149,5 +172,21 @@ public class GameController : MonoBehaviour
     void ContentPlaced(Content cont)
     {
         contentList.Add(cont);
+    }
+
+    public void ChangeContentType(int type)
+    {
+        if (SelectedType == type && LoadActive)
+            LoadActive = false;
+        else {
+            LoadActive = true;
+            if (SelectedType != type)
+            {
+                CurrentContent = null;
+
+            }
+            SelectedType = type;
+        }
+        
     }
 }
