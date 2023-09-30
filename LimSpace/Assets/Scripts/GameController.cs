@@ -1,17 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    Storage storage;
+    public Storage storage;
     Content CurrentContent;
     List<Content> contentList;
+    List<Content> watchedContentList;
+    public BitView BitViewPrefab;
     void Start()
     {
         contentList=new List<Content>();
-        storage = new Storage();
-        storage.InitSpace(10);
+        watchedContentList=new List<Content>();
+        storage.SpaceTransform = transform;
+        storage.BitView = BitViewPrefab;
+        storage.InitSpace(15);
         viewStorage();
     }
 
@@ -22,12 +27,17 @@ public class GameController : MonoBehaviour
         {
             if (CurrentContent==null || CurrentContent.Placed) { CreateContent();}
             placeContent();
-        } 
+        }
+        if (Input.GetKeyDown(KeyCode.Delete))
+        {
+            consumeContent();
+        }
     }
 
     void CreateContent()
     {
-        CurrentContent = ContentFactory.CreateContent(3);
+        int rnd = Random.Range(2, 5);
+        CurrentContent = ContentFactory.CreateContent(rnd);
         CurrentContent.OnPlaced += ContentPlaced;
     }
 
@@ -37,14 +47,31 @@ public class GameController : MonoBehaviour
         viewStorage();
     }
 
+    void consumeContent()
+    {
+        if (contentList.Count == 0) return;
+        int rnd=Random.Range(0, contentList.Count);
+        var cont = contentList[rnd];
+        watchedContentList.Add(cont);
+        contentList.RemoveAt(rnd);
+        cont.Watched = true;
+        viewStorage();
+    }
+
+    public void deleteContent(Content content)
+    {
+        
+        storage.RemoveContent(content);
+        watchedContentList.Remove(content);
+        viewStorage();
+    }
+
     void viewStorage()
     {
-        var s = "";
-        for (int i = 0; i < storage.Space.Length; i++)
+        for (int i = 0; i < storage.SpaceView.Length; i++)
         {
-            s += storage.Space[i] + "; ";
+           storage.SpaceView[i].UpdateState();
         }
-        Debug.Log(s);
     }
 
     void ContentPlaced(Content cont)

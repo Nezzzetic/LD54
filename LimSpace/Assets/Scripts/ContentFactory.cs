@@ -22,6 +22,7 @@ public class ContentFactory
         a.Coords = new List<int>();
         a.PartsRemains = size;
         a.Divisions = 0;
+        a.Watched= false;
         return a;
     }
 }

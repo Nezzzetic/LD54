@@ -2,19 +2,24 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Storage
+public class Storage : MonoBehaviour
 {
-    public int[] Space;
+    public BitView[] SpaceView;
     public int CurrentHeadPosition;
+    public Transform SpaceTransform;
+    public BitView BitView;
 
     public void InitSpace(int Size)
     {
-        Space = new int[Size];
+        SpaceView = new BitView[Size];
         for (int i = 0; i < Size; i++)
         {
-            Space[i] = 0;
+            SpaceView[i] = Instantiate(BitView, SpaceTransform);
+            SpaceView[i].transform.position += Vector3.right * 1.1f * i + Vector3.left * 8;
+            SpaceView[i].ID = 0;
         }
         CurrentHeadPosition = 0;
+
     }
 
     private int _findNextFreePosition()
@@ -22,8 +27,8 @@ public class Storage
         var a = CurrentHeadPosition + 1;
         while (a!= CurrentHeadPosition)
         {
-            if (a == Space.Length) a = 0;
-            if (Space[a] == 0) return a;
+            if (a == SpaceView.Length) a = 0;
+            if (SpaceView[a].ID == 0) return a;
             a++;
         }
         return -1;
@@ -31,14 +36,15 @@ public class Storage
 
     private void _addContentPiece(Content cont)
     {
-        Space[CurrentHeadPosition] = cont.ID;
-        cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition > 0 && Space[CurrentHeadPosition - 1] != cont.ID);
+        SpaceView[CurrentHeadPosition].ID = cont.ID;
+        SpaceView[CurrentHeadPosition].content = cont;
+        cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition > 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID);
     }
 
 
     public int AddContentPiece(Content cont)
     {
-        if (Space[CurrentHeadPosition] == 0) {
+        if (SpaceView[CurrentHeadPosition].ID == 0) {
             _addContentPiece(cont); 
             return 0;
         }
@@ -52,11 +58,15 @@ public class Storage
         return -1;
     }
 
-    public void RemoveContentPiece(Content cont)
+    public void RemoveContent(Content cont)
     {
-        for (int i = 0; i < Space.Length; i++)
+        for (int i = 0; i < SpaceView.Length; i++)
         {
-            if (Space[i] == cont.ID) Space[i] = 0;
+            if (SpaceView[i].ID == cont.ID)
+            {
+                SpaceView[i].ID = 0;
+                SpaceView[i].content = null;
+            }
         }
     }
 }

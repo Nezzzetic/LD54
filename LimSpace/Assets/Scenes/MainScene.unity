@@ -123,6 +123,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &451916471
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 451916473}
+  - component: {fileID: 451916472}
+  m_Layer: 0
+  m_Name: Storage
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &451916472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451916471}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29d1e195d5733534abb27d22879f9025, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  SpaceView: []
+  CurrentHeadPosition: 0
+  SpaceTransform: {fileID: 451916473}
+  BitView: {fileID: -8979140269596263426, guid: 9da90ee580d3769459cc5b114fa7e7e2, type: 3}
+--- !u!4 &451916473
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 451916471}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -244,6 +292,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a990b30542c704641b3ec4e1e0cf7a09, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  storage: {fileID: 451916472}
+  BitViewPrefab: {fileID: -8979140269596263426, guid: 9da90ee580d3769459cc5b114fa7e7e2, type: 3}
 --- !u!4 &876157095
 Transform:
   m_ObjectHideFlags: 0
@@ -265,3 +315,4 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 876157095}
+  - {fileID: 451916473}

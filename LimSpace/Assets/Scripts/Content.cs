@@ -10,6 +10,7 @@ public class Content
     public int Divisions;
     public int PartsRemains;
     public bool Placed;
+    public bool Watched;
     public Action<Content> OnPlaced = delegate { };
 
     public void PartPlaced(int x, bool separate = false)
