@@ -19,6 +19,7 @@ public class GameController : MonoBehaviour
     public float WatchTime;
     public float LifeTimer;
     public float LifeTime;
+    public float LifeTimeMax;
     public float LifeLenghtMulty;
     public float Points;
     public float MaxPoints;
@@ -29,6 +30,7 @@ public class GameController : MonoBehaviour
     public Text pointsText;
     public Text maxpointsText;
     public Image desireText;
+    public Image timeProgressBar;
     public int Size;
     public int Setup;
     public int SelectedType;
@@ -38,6 +40,7 @@ public class GameController : MonoBehaviour
     public bool LoadActive;
     public int DesireType;
     public int[] DesireTypesLimits;
+    public Color[] TypeToColor;
     void Start()
     {
         contentList=new List<Content>();
@@ -48,6 +51,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < Size; i++)
         {
             storage.SpaceView[i].OnBitClick += consumeContent;
+            storage.SpaceView[i].TypeToColor = TypeToColor;
         }
         DownloadTimer = DownloadTime;
         //for (int i = 0; i < Setup; i++)
@@ -99,6 +103,7 @@ public class GameController : MonoBehaviour
         if (LifeTimer > 0)
         {
             LifeTimer -= Time.deltaTime;
+            timeProgressBar.fillAmount= LifeTimer/ LifeTimeMax;
             lifeTimerText.text = LifeTimer.ToString();
             pointsText.text = Points.ToString();
             maxpointsText.text = MaxPoints.ToString();
@@ -247,9 +252,7 @@ public class GameController : MonoBehaviour
             }
         }
         if (DesireType == -1) DesireType = 2;
-        if (DesireType == 0) { desireText.color = Color.green; }
-        if (DesireType == 1) { desireText.color = Color.blue; }
-        if (DesireType == 2) { desireText.color = Color.red; }
+        desireText.color = TypeToColor[DesireType];
     }
 
     private void PlaceSetup(List<Vector2Int> setup)

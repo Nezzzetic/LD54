@@ -12,6 +12,7 @@ public class BitView : MonoBehaviour
     public GameObject Left;
     public GameObject Right;
     public Action<BitView> OnBitClick = delegate { };
+    public Color[] TypeToColor;
 
     // Start is called before the first frame update
     void Start()
@@ -31,9 +32,7 @@ public class BitView : MonoBehaviour
         if (content.Placed) {
             if (content.Watched) { Renderer.color = Color.cyan; return; }
             else {
-                if (content.Type == 0) { Renderer.color = Color.green; }
-                if (content.Type == 1) { Renderer.color = Color.blue; }
-                if (content.Type == 2) { Renderer.color = Color.red; }
+                Renderer.color = TypeToColor[content.Type]; 
             }
             return; 
         }
