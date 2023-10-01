@@ -20,10 +20,12 @@ public class GameController : MonoBehaviour
     public float LifeTimer;
     public float LifeTime;
     public float LifeLenghtMulty;
+    public float Points;
     public float DivisionsMulty;
     public Text watchTimerText;
     public Text lifeTimerText;
-    public Text desireText;
+    public Text pointsText;
+    public Image desireText;
     public int Size;
     public int Setup;
     public int SelectedType;
@@ -40,8 +42,6 @@ public class GameController : MonoBehaviour
         storage.SpaceTransform = transform;
         storage.BitView = BitViewPrefab;
         storage.InitSpace(Size);
-        LifeTimer = LifeTime/2;
-        LoadActive = true;
         for (int i = 0; i < Size; i++)
         {
             storage.SpaceView[i].OnBitClick += consumeContent;
@@ -50,8 +50,8 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < Setup; i++)
         {
             if (CurrentContent == null || CurrentContent.Placed) {
-                SelectedType = Random.Range(0, 3);
-                CreateContent(SelectedType); 
+                RollDesire();
+                CreateContent(DesireType); 
             }
             SelectedType = 0;
             placeContent();
@@ -82,6 +82,7 @@ public class GameController : MonoBehaviour
             {
                 if (CurrentContent == null || CurrentContent.Placed) { CreateContent(SelectedType); }
                 placeContent();
+                if (CurrentContent.Placed) LoadActive = false;
                 DownloadTimer = DownloadTime;
             }
         }
@@ -93,6 +94,7 @@ public class GameController : MonoBehaviour
         {
             LifeTimer -= Time.deltaTime;
             lifeTimerText.text = LifeTimer.ToString();
+            pointsText.text = Points.ToString();
             if (LifeTimer <= 0)
             {
                 LifeTimer= - 1;
@@ -140,9 +142,9 @@ public class GameController : MonoBehaviour
         watchedContentList.Add(cont);
         contentList.RemoveAt(rnd);
         cont.Watched = true;
-        WatchTimer = WatchTime * cont.Divisions* DivisionsMulty*cont.Coords.Count;
-        LifeTimer += cont.Coords.Count * LifeLenghtMulty;
-        if (LifeTimer > LifeTime) LifeTimer = LifeTime;
+        WatchTimer = WatchTime * cont.Divisions* DivisionsMulty * cont.Coords.Count;
+        Points += cont.Coords.Count * LifeLenghtMulty;
+        LifeTimer = LifeTime;
         Debug.Log(cont.Divisions);
         ContentWindow.SetActive(true);
         viewStorage();
@@ -152,16 +154,17 @@ public class GameController : MonoBehaviour
     {
         if (WatchTimer > 0) return;
         var cont = bit.content;
+        if (cont == null ) return;
         if (DesireType != cont.Type) return;
-        watchedContentList.Add(cont);
-        contentList.Remove(cont);
-        cont.Watched = true;
-        WatchTimer = WatchTime * cont.Divisions * DivisionsMulty * cont.Coords.Count;
-        LifeTimer += cont.Coords.Count * LifeLenghtMulty;
-        if (LifeTimer > LifeTime) LifeTimer = LifeTime;
-        Debug.Log(cont.Divisions);
-        ContentWindow.SetActive(true);
-        CurrentWatchContent = cont;
+
+        Points += cont.Coords.Count * LifeLenghtMulty-(cont.Divisions-1)*DivisionsMulty;
+        LifeTimer = LifeTime;
+
+        storage.RemoveContent(cont);
+        if (watchedContentList.Contains(cont)) watchedContentList.Remove(cont);
+        if (contentList.Contains(cont)) contentList.Remove(cont);
+        ChangeContentType(DesireType);
+        RollDesire();
         viewStorage();
     }
 
@@ -224,6 +227,8 @@ public class GameController : MonoBehaviour
             }
         }
         if (DesireType == -1) DesireType = 2;
-        desireText.text = DesireType.ToString();
+        if (DesireType == 0) { desireText.color = Color.green; }
+        if (DesireType == 1) { desireText.color = Color.blue; }
+        if (DesireType == 2) { desireText.color = Color.red; }
     }
 }
