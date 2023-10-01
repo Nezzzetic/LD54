@@ -51,9 +51,14 @@ public class Storage : MonoBehaviour
         SpaceView[CurrentHeadPosition].ID = cont.ID;
         SpaceView[CurrentHeadPosition].content = cont;
         cont.PartPlaced(CurrentHeadPosition, CurrentHeadPosition == 0 || SpaceView[CurrentHeadPosition - 1].ID != cont.ID);
-        if (CurrentHeadPosition== SpaceView.Length-1 || SpaceView[CurrentHeadPosition + 1].ID != 0) SpaceView[CurrentHeadPosition].Right.SetActive(true);
+        if (CurrentHeadPosition == SpaceView.Length - 1 || SpaceView[CurrentHeadPosition + 1].ID != 0) SpaceView[CurrentHeadPosition].Right.SetActive(true);
         if (CurrentHeadPosition == 0 || SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition].Left.SetActive(true);
-        if (CurrentHeadPosition != 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition-1].Right.SetActive(true);
+        if (CurrentHeadPosition != 0 && SpaceView[CurrentHeadPosition - 1].ID != cont.ID) SpaceView[CurrentHeadPosition - 1].Right.SetActive(true);
+        var a = _findNextFreePosition();
+        if (a >= 0)
+        {
+            CurrentHeadPosition = a;
+        }
     }
 
 
@@ -85,5 +90,17 @@ public class Storage : MonoBehaviour
                 SpaceView[i].Right.SetActive(false);
             }
         }
+    }
+
+    public void Clear()
+    {
+        for (int i = 0; i < SpaceView.Length; i++)
+        {
+            SpaceView[i].ID = 0;
+            SpaceView[i].content = null;
+            SpaceView[i].Left.SetActive(false);
+            SpaceView[i].Right.SetActive(false);
+        }
+        CurrentHeadPosition= 0;
     }
 }

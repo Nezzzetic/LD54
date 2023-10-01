@@ -21,10 +21,13 @@ public class GameController : MonoBehaviour
     public float LifeTime;
     public float LifeLenghtMulty;
     public float Points;
+    public float MaxPoints;
     public float DivisionsMulty;
+    public float DefragMulty;
     public Text watchTimerText;
     public Text lifeTimerText;
     public Text pointsText;
+    public Text maxpointsText;
     public Image desireText;
     public int Size;
     public int Setup;
@@ -47,15 +50,18 @@ public class GameController : MonoBehaviour
             storage.SpaceView[i].OnBitClick += consumeContent;
         }
         DownloadTimer = DownloadTime;
-        for (int i = 0; i < Setup; i++)
-        {
-            if (CurrentContent == null || CurrentContent.Placed) {
-                RollDesire();
-                CreateContent(DesireType); 
-            }
-            SelectedType = 0;
-            placeContent();
-        }
+        //for (int i = 0; i < Setup; i++)
+        //{
+        //    if (CurrentContent == null || CurrentContent.Placed) {
+        //        RollDesire();
+        //        CreateContent(DesireType); 
+        //    }
+        //    SelectedType = 0;
+        //    placeContent();
+        //}
+        var a = StartSetup();
+        PlaceSetup(a);
+
         RollDesire();
         viewStorage();
     }
@@ -65,7 +71,7 @@ public class GameController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            if (WatchTimer<=0) { consumeContent(); }
+            Defragmetation(); 
         }
         UpdateDownload();
         UpdateWatching();
@@ -95,6 +101,7 @@ public class GameController : MonoBehaviour
             LifeTimer -= Time.deltaTime;
             lifeTimerText.text = LifeTimer.ToString();
             pointsText.text = Points.ToString();
+            maxpointsText.text = MaxPoints.ToString();
             if (LifeTimer <= 0)
             {
                 LifeTimer= - 1;
@@ -120,11 +127,22 @@ public class GameController : MonoBehaviour
 
     void CreateContent(int type)
     {
+        CurrentContent = ContentFactory.CreateContent(getSizeByType(type), type);
+        CurrentContent.OnPlaced += ContentPlaced;
+    }
+
+    int getSizeByType(int type)
+    {
         int rnd = 0;
-        if (type==0) rnd = Random.Range(Type0Size.x, Type0Size.y);
-        if (type==1) rnd = Random.Range(Type1Size.x, Type1Size.y);
-        if (type==2) rnd = Random.Range(Type2Size.x, Type2Size.y);
-        CurrentContent = ContentFactory.CreateContent(rnd, type);
+        if (type == 0) rnd = Random.Range(Type0Size.x, Type0Size.y);
+        if (type == 1) rnd = Random.Range(Type1Size.x, Type1Size.y);
+        if (type == 2) rnd = Random.Range(Type2Size.x, Type2Size.y);
+        return rnd;
+    }
+
+    void CreateContent(int type, int size)
+    {
+        CurrentContent = ContentFactory.CreateContent(size, type);
         CurrentContent.OnPlaced += ContentPlaced;
     }
 
@@ -144,6 +162,7 @@ public class GameController : MonoBehaviour
         cont.Watched = true;
         WatchTimer = WatchTime * cont.Divisions* DivisionsMulty * cont.Coords.Count;
         Points += cont.Coords.Count * LifeLenghtMulty;
+        if (MaxPoints <= Points) MaxPoints = Points;
         LifeTimer = LifeTime;
         Debug.Log(cont.Divisions);
         ContentWindow.SetActive(true);
@@ -159,6 +178,7 @@ public class GameController : MonoBehaviour
 
         Points += cont.Coords.Count * LifeLenghtMulty-(cont.Divisions-1)*DivisionsMulty;
         LifeTimer = LifeTime;
+        if (MaxPoints <= Points) MaxPoints = Points;
 
         storage.RemoveContent(cont);
         if (watchedContentList.Contains(cont)) watchedContentList.Remove(cont);
@@ -230,5 +250,53 @@ public class GameController : MonoBehaviour
         if (DesireType == 0) { desireText.color = Color.green; }
         if (DesireType == 1) { desireText.color = Color.blue; }
         if (DesireType == 2) { desireText.color = Color.red; }
+    }
+
+    private void PlaceSetup(List<Vector2Int> setup)
+    {
+        storage.Clear();
+        for (int i = 0; i < setup.Count; i++)
+        {
+            var type = setup[i].x;
+            var size = setup[i].y;
+            CreateContent(type, size);
+            for (int j = 0; j < size; j++)
+            {
+                placeContent();
+            }
+        }
+    }
+    private List<Vector2Int> StartSetup()
+    {
+        var res= new List<Vector2Int>();
+        var used = 0;
+        while (used < Setup)
+        {
+            RollDesire();
+            var size = getSizeByType(DesireType);
+            used += size;
+            res.Add(new Vector2Int(DesireType, size));
+        }
+        return res;
+    }
+
+    private List<Vector2Int> GetSetupFromContent()
+    {
+        var res = new List<Vector2Int>();
+        foreach (var item in contentList)
+        {
+            res.Add(new Vector2Int(item.Type, item.Coords.Count));
+        }
+        return res;
+    }
+
+    public void Defragmetation()
+    {
+        var setup = GetSetupFromContent();
+        storage.Clear();
+        contentList.Clear();
+        PlaceSetup(setup);
+        LifeTime=LifeTime * DefragMulty;
+        if (LifeTimer> LifeTime) LifeTimer=LifeTime;
     }
 }
