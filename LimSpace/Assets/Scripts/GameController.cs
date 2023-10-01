@@ -53,6 +53,11 @@ public class GameController : MonoBehaviour
     public AudioSource ContentAudioSource;
     public AudioSource FailAudioSource;
     public AudioSource DefragAudioSource;
+    public TMP_Text fragmentedText;
+    public bool LifeRun;
+    public Transform StarTrans;
+    public GameObject Star;
+    public GameObject RedStar;
     void Start()
     {
         ContentAudioClips = new List<AudioClip[]>
@@ -61,7 +66,7 @@ public class GameController : MonoBehaviour
             MusicAudioClips,
             VideoAudioClips
         };
-
+        LifeRun = false;
         contentList =new List<Content>();
         watchedContentList=new List<Content>();
         storage.SpaceTransform = transform;
@@ -100,6 +105,7 @@ public class GameController : MonoBehaviour
         UpdateDownload();
         UpdateWatching();
         UpdateLife();
+        UpdateFragmented();
     }
 
     private void UpdateDownload()
@@ -118,8 +124,24 @@ public class GameController : MonoBehaviour
         }
     }
 
+    private void UpdateFragmented()
+    {
+        var a = 0;
+        foreach (var item in contentList)
+        {
+            if (item.Divisions > 1) a++;
+        }
+        fragmentedText.text=a.ToString();
+    }
+
+    public void RunLifeTimer()
+    {
+        LifeRun = true;
+    }
+
     private void UpdateLife()
     {
+        if (!LifeRun) return;
         if (LifeTimer > 0)
         {
             LifeTimer -= Time.deltaTime;
@@ -205,6 +227,7 @@ public class GameController : MonoBehaviour
     void consumeContent(BitView bit)
     {
         if (WatchTimer > 0) return;
+        if (CurrentContent!=null && !CurrentContent.Placed) return;
         var cont = bit.content;
         if (cont == null ) return;
         if (DesireType != cont.Type) return;
@@ -214,12 +237,18 @@ public class GameController : MonoBehaviour
         if (MaxPoints <= Points) MaxPoints = Points;
         if (Points>=200) SceneManager.LoadScene(2);
         if (delta < 0)
+        {
             FailAudioSource.Play();
+            var red = Instantiate(RedStar, StarTrans);
+            Destroy(red,1);
+        }
         else
         {
             var rnd = Random.Range(0, ContentAudioClips[DesireType].Length);
             ContentAudioSource.clip = ContentAudioClips[DesireType][rnd];
             ContentAudioSource.Play();
+            var star = Instantiate(Star, StarTrans);
+            Destroy(star, 1);
         }
         storage.RemoveContent(cont);
         if (watchedContentList.Contains(cont)) watchedContentList.Remove(cont);
