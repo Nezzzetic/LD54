@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour
 {
@@ -41,9 +43,26 @@ public class GameController : MonoBehaviour
     public int DesireType;
     public int[] DesireTypesLimits;
     public Color[] TypeToColor;
+    public Sprite[] TypeToSprite;
+    public int ColorIndex;
+    public List<Vector2Int> StartSet;
+    public List<AudioClip[]> ContentAudioClips; 
+    public AudioClip[] ImageAudioClips;
+    public AudioClip[] MusicAudioClips;
+    public AudioClip[] VideoAudioClips;
+    public AudioSource ContentAudioSource;
+    public AudioSource FailAudioSource;
+    public AudioSource DefragAudioSource;
     void Start()
     {
-        contentList=new List<Content>();
+        ContentAudioClips = new List<AudioClip[]>
+        {
+            ImageAudioClips,
+            MusicAudioClips,
+            VideoAudioClips
+        };
+
+        contentList =new List<Content>();
         watchedContentList=new List<Content>();
         storage.SpaceTransform = transform;
         storage.BitView = BitViewPrefab;
@@ -51,6 +70,7 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < Size; i++)
         {
             storage.SpaceView[i].OnBitClick += consumeContent;
+            storage.SpaceView[i].TypeToSprite = TypeToSprite;
             storage.SpaceView[i].TypeToColor = TypeToColor;
         }
         DownloadTimer = DownloadTime;
@@ -63,7 +83,7 @@ public class GameController : MonoBehaviour
         //    SelectedType = 0;
         //    placeContent();
         //}
-        var a = StartSetup();
+        var a = StartSetupFromConfig(StartSet);
         PlaceSetup(a);
 
         RollDesire();
@@ -110,6 +130,7 @@ public class GameController : MonoBehaviour
             if (LifeTimer <= 0)
             {
                 LifeTimer= - 1;
+                SceneManager.LoadScene(1);
             }
         }
     }
@@ -133,6 +154,9 @@ public class GameController : MonoBehaviour
     void CreateContent(int type)
     {
         CurrentContent = ContentFactory.CreateContent(getSizeByType(type), type);
+        CurrentContent.Color = TypeToColor[ColorIndex];
+        ColorIndex++;
+        if (ColorIndex == TypeToColor.Length) ColorIndex = 0;
         CurrentContent.OnPlaced += ContentPlaced;
     }
 
@@ -148,6 +172,9 @@ public class GameController : MonoBehaviour
     void CreateContent(int type, int size)
     {
         CurrentContent = ContentFactory.CreateContent(size, type);
+        CurrentContent.Color = TypeToColor[ColorIndex];
+        ColorIndex++;
+        if (ColorIndex == TypeToColor.Length) ColorIndex = 0;
         CurrentContent.OnPlaced += ContentPlaced;
     }
 
@@ -166,6 +193,7 @@ public class GameController : MonoBehaviour
         contentList.RemoveAt(rnd);
         cont.Watched = true;
         WatchTimer = WatchTime * cont.Divisions* DivisionsMulty * cont.Coords.Count;
+        
         Points += cont.Coords.Count * LifeLenghtMulty;
         if (MaxPoints <= Points) MaxPoints = Points;
         LifeTimer = LifeTime;
@@ -180,11 +208,19 @@ public class GameController : MonoBehaviour
         var cont = bit.content;
         if (cont == null ) return;
         if (DesireType != cont.Type) return;
-
-        Points += cont.Coords.Count * LifeLenghtMulty-(cont.Divisions-1)*DivisionsMulty;
+        var delta = cont.Coords.Count * LifeLenghtMulty - (cont.Divisions - 1) * DivisionsMulty;
+        Points += delta;
         LifeTimer = LifeTime;
         if (MaxPoints <= Points) MaxPoints = Points;
-
+        if (Points==200) SceneManager.LoadScene(2);
+        if (delta < 0)
+            FailAudioSource.Play();
+        else
+        {
+            var rnd = Random.Range(0, ContentAudioClips[DesireType].Length);
+            ContentAudioSource.clip = ContentAudioClips[DesireType][rnd];
+            ContentAudioSource.Play();
+        }
         storage.RemoveContent(cont);
         if (watchedContentList.Contains(cont)) watchedContentList.Remove(cont);
         if (contentList.Contains(cont)) contentList.Remove(cont);
@@ -252,7 +288,7 @@ public class GameController : MonoBehaviour
             }
         }
         if (DesireType == -1) DesireType = 2;
-        desireText.color = TypeToColor[DesireType];
+        desireText.sprite = TypeToSprite[DesireType];
     }
 
     private void PlaceSetup(List<Vector2Int> setup)
@@ -272,6 +308,7 @@ public class GameController : MonoBehaviour
     private List<Vector2Int> StartSetup()
     {
         var res= new List<Vector2Int>();
+        var res2= new List<Vector2Int>();
         var used = 0;
         while (used < Setup)
         {
@@ -280,7 +317,25 @@ public class GameController : MonoBehaviour
             used += size;
             res.Add(new Vector2Int(DesireType, size));
         }
-        return res;
+        var rnd = new System.Random();
+        var randomized = res.OrderBy(item => rnd.Next());
+        foreach (var item in randomized)
+        {
+            res2.Add(item);
+        }
+        return res2;
+    }
+
+    private List<Vector2Int> StartSetupFromConfig(List<Vector2Int> setup)
+    {
+        var res2 = new List<Vector2Int>();
+        var rnd = new System.Random();
+        var randomized = setup.OrderBy(item => rnd.Next());
+        foreach (var item in randomized)
+        {
+            res2.Add(item);
+        }
+        return res2;
     }
 
     private List<Vector2Int> GetSetupFromContent()
@@ -301,5 +356,7 @@ public class GameController : MonoBehaviour
         PlaceSetup(setup);
         LifeTime=LifeTime * DefragMulty;
         if (LifeTimer> LifeTime) LifeTimer=LifeTime;
+        DefragAudioSource.Play();
     }
+
 }

@@ -8,11 +8,14 @@ public class BitView : MonoBehaviour
 {
     public int ID;
     public SpriteRenderer Renderer;
+    public SpriteRenderer Icon;
     public Content content;
     public GameObject Left;
     public GameObject Right;
     public Action<BitView> OnBitClick = delegate { };
     public Color[] TypeToColor;
+    public Sprite[] TypeToSprite;
+    public Sprite DefaultSprite;
 
     // Start is called before the first frame update
     void Start()
@@ -28,15 +31,16 @@ public class BitView : MonoBehaviour
 
     public void UpdateState()
     {
-        if (ID == 0) { Renderer.color = Color.white; return; }
+        if (ID == 0) { Renderer.color = Color.white; Icon.sprite = DefaultSprite; return; }
         if (content.Placed) {
-            if (content.Watched) { Renderer.color = Color.cyan; return; }
-            else {
-                Renderer.color = TypeToColor[content.Type]; 
-            }
-            return; 
+            Renderer.color = content.Color;
+        } else
+        {
+            Renderer.color = Color.gray;
         }
-        Renderer.color = Color.gray;
+        Icon.sprite = TypeToSprite[content.Type];
+        
+
 
     }
 

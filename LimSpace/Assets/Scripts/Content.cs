@@ -12,6 +12,7 @@ public class Content
     public bool Placed;
     public bool Watched;
     public int Type;
+    public Color Color;
     public Action<Content> OnPlaced = delegate { };
 
     public void PartPlaced(int x, bool separate = false)
