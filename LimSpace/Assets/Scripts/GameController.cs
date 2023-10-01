@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class GameController : MonoBehaviour
     public float DefragMulty;
     public Text watchTimerText;
     public Text lifeTimerText;
-    public Text pointsText;
+    public TMP_Text pointsText;
     public Text maxpointsText;
     public Image desireText;
     public Image timeProgressBar;
@@ -125,7 +126,7 @@ public class GameController : MonoBehaviour
             LifeTimer -= Time.deltaTime;
             timeProgressBar.fillAmount= LifeTimer/ LifeTimeMax;
             lifeTimerText.text = LifeTimer.ToString();
-            pointsText.text = Points.ToString();
+            pointsText.text = Points+"/100";
             maxpointsText.text = MaxPoints.ToString();
             if (LifeTimer <= 0)
             {

@@ -16,6 +16,7 @@ public class BitView : MonoBehaviour
     public Color[] TypeToColor;
     public Sprite[] TypeToSprite;
     public Sprite DefaultSprite;
+    public GameObject Border;
 
     // Start is called before the first frame update
     void Start()
@@ -31,7 +32,7 @@ public class BitView : MonoBehaviour
 
     public void UpdateState()
     {
-        if (ID == 0) { Renderer.color = Color.gray; Icon.enabled=false; 
+        if (ID == 0) { Renderer.color = Color.gray; Icon.enabled=false; Border.SetActive(false);
         } else {
             Icon.enabled = true;
             if (content.Placed) {
@@ -43,6 +44,7 @@ public class BitView : MonoBehaviour
                 Renderer.color = Color.black;
             }
             Icon.sprite = TypeToSprite[content.Type];
+            Border.SetActive(content.Divisions > 1);
         }
 
 
