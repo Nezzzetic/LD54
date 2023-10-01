@@ -31,15 +31,19 @@ public class BitView : MonoBehaviour
 
     public void UpdateState()
     {
-        if (ID == 0) { Renderer.color = Color.white; Icon.sprite = DefaultSprite; return; }
-        if (content.Placed) {
-            Renderer.color = content.Color;
-        } else
-        {
-            Renderer.color = Color.gray;
+        if (ID == 0) { Renderer.color = Color.gray; Icon.enabled=false; 
+        } else {
+            Icon.enabled = true;
+            if (content.Placed) {
+                Renderer.color = content.Color;
+                Icon.color = Color.white;
+            } else
+            {
+                Icon.color = Color.gray;
+                Renderer.color = Color.black;
+            }
+            Icon.sprite = TypeToSprite[content.Type];
         }
-        Icon.sprite = TypeToSprite[content.Type];
-        
 
 
     }
