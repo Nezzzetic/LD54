@@ -32,7 +32,7 @@ public class BitView : MonoBehaviour
 
     public void UpdateState()
     {
-        if (ID == 0) { Renderer.color = Color.gray; Icon.enabled=false; Border.SetActive(false);
+        if (ID == 0) { Renderer.color = new Color(0.7f, 0.7f, 0.7f); Icon.enabled=false; Border.SetActive(false);
         } else {
             Icon.enabled = true;
             if (content.Placed) {

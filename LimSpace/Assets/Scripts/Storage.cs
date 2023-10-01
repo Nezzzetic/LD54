@@ -19,7 +19,7 @@ public class Storage : MonoBehaviour
         {
             
             SpaceView[i] = Instantiate(BitView, SpaceTransform);
-            SpaceView[i].transform.position += Vector3.right * 1.071f * x + Vector3.left * 7.5f+ Vector3.up * 1.2f * y + Vector3.down * 4f;
+            SpaceView[i].transform.position += Vector3.right * 1.071f * x + Vector3.left * 7.5f+ Vector3.up * 1.2f * y + Vector3.down * 4.2f;
             SpaceView[i].ID = 0;
             x++;
             if (x == Xsize)

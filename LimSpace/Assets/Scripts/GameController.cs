@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
@@ -126,7 +125,7 @@ public class GameController : MonoBehaviour
             LifeTimer -= Time.deltaTime;
             timeProgressBar.fillAmount= LifeTimer/ LifeTimeMax;
             lifeTimerText.text = LifeTimer.ToString();
-            pointsText.text = Points+"/100";
+            pointsText.text = Points+"/200";
             maxpointsText.text = MaxPoints.ToString();
             if (LifeTimer <= 0)
             {
@@ -213,7 +212,7 @@ public class GameController : MonoBehaviour
         Points += delta;
         LifeTimer = LifeTime;
         if (MaxPoints <= Points) MaxPoints = Points;
-        if (Points==200) SceneManager.LoadScene(2);
+        if (Points>=200) SceneManager.LoadScene(2);
         if (delta < 0)
             FailAudioSource.Play();
         else
